@@ -1,27 +1,19 @@
 # Setup azurerm as a state backend
 terraform {
   backend "azurerm" {
-//      resource_group_name  = "rg-tfstate"
-//      storage_account_name = "tfstate5774"
-//      container_name       = "tfstate-container"
-//      key                  = "terraform.tfstate"
+    resource_group_name = "testResourceGroup"
+    storage_account_name = "stsparktask01"
+    container_name = "tfstate-container02"
+    key = "terraform.tfstate"
+
   }
 }
 
-//terraform {
-//  backend "azurerm" {
-//    resource_group_name  = "terraform-group"
-//    storage_account_name = "terraformstatestorage420"
-//    container_name       = "terraform-state-container"
-//    key                  = "sparkbasics.terraform.tfstate"
-//  }
-//}
-
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
+  version = "~> 2.62.0"
   features {}
 }
-
 
 data "azurerm_client_config" "current" {}
 
@@ -38,6 +30,7 @@ resource "azurerm_resource_group" "bdcc" {
     env = var.ENV
   }
 }
+
 
 resource "azurerm_storage_account" "bdcc" {
   depends_on = [
@@ -65,7 +58,6 @@ resource "azurerm_storage_account" "bdcc" {
   }
 }
 
-
 resource "azurerm_storage_data_lake_gen2_filesystem" "gen2_data" {
   depends_on = [
     azurerm_storage_account.bdcc]
@@ -77,6 +69,8 @@ resource "azurerm_storage_data_lake_gen2_filesystem" "gen2_data" {
     prevent_destroy = true
   }
 }
+
+
 
 resource "azurerm_kubernetes_cluster" "bdcc" {
   depends_on = [
@@ -103,6 +97,8 @@ resource "azurerm_kubernetes_cluster" "bdcc" {
   }
 }
 
+
+
 output "client_certificate" {
   value = azurerm_kubernetes_cluster.bdcc.kube_config.0.client_certificate
 }
@@ -111,3 +107,4 @@ output "kube_config" {
   sensitive = true
   value = azurerm_kubernetes_cluster.bdcc.kube_config_raw
 }
+
